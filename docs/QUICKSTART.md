@@ -270,7 +270,7 @@ docker run -d \
 
 ## 📚 Next Steps
 
-1. **Read Full Documentation**: See [README.md](README.md) for all API parameters
+1. **Read Full Documentation**: See [README.md](../README.md) for all API parameters
 2. **Production Deployment**: Check [DOCKER.md](DOCKER.md) for production setup
 3. **Advanced Features**: Explore all 11 configuration parameters
 4. **Scale Your Service**: Learn about horizontal and vertical scaling
@@ -289,7 +289,7 @@ docker run -d \
 
 ## 🆘 Need Help?
 
-- **API Usage**: [README.md](README.md)
+- **API Usage**: [README.md](../README.md)
 - **Docker Issues**: [DOCKER.md](DOCKER.md)
 - **crawl4ai Docs**: [https://docs.crawl4ai.com/](https://docs.crawl4ai.com/)
 

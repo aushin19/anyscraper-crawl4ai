@@ -24,7 +24,7 @@ A Flask-based web scraping API powered by crawl4ai that supports server-side ren
 **Quick Start:**
 ```bash
 # Using Docker Compose
-docker-compose up -d
+docker-compose up -d --build
 
 # The API will be available at http://localhost:5000
 ```
@@ -40,6 +40,8 @@ docker run -d -p 5000:5000 --name scraper-api flask-crawl4ai-scraper
 # View logs
 docker logs -f scraper-api
 ```
+
+> ⚠️ **Note:** If you encounter Playwright browser errors, see [REBUILD_INSTRUCTIONS.md](REBUILD_INSTRUCTIONS.md) for the fix.
 
 📖 **See [DOCKER.md](/docs/DOCKER.md) for comprehensive Docker documentation including:**
 - Production deployment guide
@@ -409,17 +411,34 @@ server {
 
 ### Issue: "Executable doesn't exist" or Playwright browser errors
 
-**Solution:** Install Playwright browsers:
+**Local Installation Solution:**
 ```bash
-python -m playwright install
-```
-
-Or install only Chromium:
-```bash
-python -m playwright install chromium
+python -m playwright install chromium --with-deps
 ```
 
 **Windows users:** Always use `python -m playwright` instead of just `playwright`.
+
+**Docker Solution:**
+If you get this error in Docker, rebuild the image:
+```bash
+# Stop and remove old container
+docker stop scraper-api && docker rm scraper-api
+
+# Rebuild with fixed Dockerfile
+docker build -t flask-crawl4ai-scraper .
+
+# Run new container
+docker run -d -p 5000:5000 --name scraper-api flask-crawl4ai-scraper
+```
+
+Or with Docker Compose:
+```bash
+docker-compose down
+docker-compose build --no-cache
+docker-compose up -d
+```
+
+📖 **See [REBUILD_INSTRUCTIONS.md](REBUILD_INSTRUCTIONS.md) for detailed rebuild guide.**
 
 ### Issue: "crawl4ai-setup command not found"
 
@@ -568,10 +587,12 @@ flask-crawl4ai-scraper/
 ├── .gitignore               # Git exclusions
 │
 ├── README.md                # Main documentation (this file)
-├── QUICKSTART.md            # Quick start guide (5 minutes)
-├── DOCKER.md                # Comprehensive Docker guide
-├── UBUNTU_DEPLOYMENT.md     # Ubuntu server deployment guide
-└── SUMMARY.md               # Project overview & reference
+├── REBUILD_INSTRUCTIONS.md  # Docker rebuild guide (if you encounter issues)
+└── docs/
+    ├── QUICKSTART.md        # Quick start guide (5 minutes)
+    ├── DOCKER.md            # Comprehensive Docker guide
+    ├── UBUNTU_DEPLOYMENT.md # Ubuntu server deployment guide
+    └── SUMMARY.md           # Project overview & reference
 ```
 
 ## API Response Schema

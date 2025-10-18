@@ -839,7 +839,7 @@ sudo certbot certificates         # List certificates
 For issues specific to:
 - **Ubuntu Setup**: Check this guide
 - **Docker Deployment**: See [DOCKER.md](DOCKER.md)
-- **API Usage**: See [README.md](README.md)
+- **API Usage**: See [README.md](../README.md)
 - **Quick Start**: See [QUICKSTART.md](QUICKSTART.md)
 
 ---

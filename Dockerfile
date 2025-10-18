@@ -46,19 +46,26 @@ RUN pip install --upgrade pip && \
     pip install -r requirements.txt
 
 # Install Playwright browsers (Chromium only for smaller image size)
-RUN python -m playwright install chromium && \
-    python -m playwright install-deps chromium
+# Run as root to ensure proper installation
+RUN python -m playwright install chromium --with-deps
 
 # Copy application files
 COPY app.py .
-COPY README.md .
 
 # Create a non-root user for security
 RUN useradd -m -u 1000 scraper && \
     chown -R scraper:scraper /app
 
+# Copy Playwright browsers to the scraper user's home directory
+RUN mkdir -p /home/scraper/.cache && \
+    cp -r /root/.cache/ms-playwright /home/scraper/.cache/ 2>/dev/null || true && \
+    chown -R scraper:scraper /home/scraper/.cache
+
 # Switch to non-root user
 USER scraper
+
+# Verify Playwright installation
+RUN python -m playwright install chromium --with-deps 2>/dev/null || true
 
 # Expose Flask port
 EXPOSE 5000

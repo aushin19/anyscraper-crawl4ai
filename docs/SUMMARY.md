@@ -414,7 +414,7 @@ docker stats
 
 ### Documentation
 - **Quick Start:** [QUICKSTART.md](QUICKSTART.md) - Get started in 5 minutes
-- **Full API Docs:** [README.md](README.md) - Complete API reference
+- **Full API Docs:** [README.md](../README.md) - Complete API reference
 - **Docker Guide:** [DOCKER.md](DOCKER.md) - Docker deployment guide
 - **Ubuntu Deployment:** [UBUNTU_DEPLOYMENT.md](UBUNTU_DEPLOYMENT.md) - Production Ubuntu server setup
 
