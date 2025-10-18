@@ -1,5 +1,48 @@
 # Changelog
 
+## [Fixed] Docker Compose CPU Limit Error on Low-Resource Servers
+
+**Date:** 2025-10-18 (Update 4)
+
+### Issue
+On Ubuntu servers with only 1 CPU, Docker Compose was failing with:
+```
+ERROR: range of CPUs is from 0.01 to 1.00, as there are only 1 CPUs available
+```
+
+### Root Cause
+The default `docker-compose.yml` was trying to reserve 1 CPU and limit to 2 CPUs, which is impossible on a 1-CPU server.
+
+### Solution
+1. **Commented out resource limits in default docker-compose.yml** - Now works on any server
+2. **Created docker-compose.minimal.yml** - Optimized for low-resource servers (1 CPU, 1-2GB RAM)
+3. **Created docker-compose.production.yml** - For production servers with adequate resources (2+ CPUs, 4+ GB RAM)
+
+### Files Created
+- `docker-compose.minimal.yml` - For 1 CPU servers
+- `docker-compose.production.yml` - For production servers
+- `LOW_RESOURCE_SERVER_FIX.md` - Complete troubleshooting guide
+
+### Files Modified
+- `docker-compose.yml` - Resource limits commented out
+- `README.md` - Added all three configuration options
+- `docs/DOCKER.md` - Updated with configuration choices
+- `docs/UBUNTU_DEPLOYMENT.md` - Updated deployment steps
+
+### Usage
+```bash
+# Default (works on any server)
+docker-compose up -d
+
+# Low-resource servers (1 CPU)
+docker-compose -f docker-compose.minimal.yml up -d
+
+# Production servers (2+ CPUs)
+docker-compose -f docker-compose.production.yml up -d
+```
+
+---
+
 ## [Fixed] fit_markdown Empty with include_tags
 
 **Date:** 2025-10-18 (Update 3)

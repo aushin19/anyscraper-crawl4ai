@@ -21,6 +21,7 @@ Complete guide for deploying the Flask crawl4ai Scraper API using Docker.
 
 ### Using Docker Compose (Recommended)
 
+**Default (Development):**
 ```bash
 # Build and start the service
 docker-compose up -d
@@ -30,6 +31,18 @@ docker-compose logs -f
 
 # Stop the service
 docker-compose down
+```
+
+**For Low-Resource Servers (1 CPU, 1-2GB RAM):**
+```bash
+# Use minimal configuration
+docker-compose -f docker-compose.minimal.yml up -d
+```
+
+**For Production Servers (2+ CPUs, 4+ GB RAM):**
+```bash
+# Use production configuration with resource limits
+docker-compose -f docker-compose.production.yml up -d
 ```
 
 The API will be available at `http://localhost:5000`

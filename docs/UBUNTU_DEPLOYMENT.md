@@ -124,14 +124,21 @@ cd ~/flask-crawl4ai-scraper
 # - app.py
 # - requirements.txt
 # - Dockerfile.production
-# - docker-compose.yml
+# - docker-compose.yml (or docker-compose.minimal.yml for low-resource servers)
 
 # Build and start the service
-docker-compose up -d
+# For low-resource servers (1 CPU, 1-2GB RAM):
+docker-compose -f docker-compose.minimal.yml up -d
+
+# OR for servers with more resources (2+ CPUs, 4+ GB RAM):
+# docker-compose -f docker-compose.production.yml up -d
+
+# OR for development:
+# docker-compose up -d
 
 # Check if it's running
-docker-compose ps
-docker-compose logs -f
+docker ps
+docker logs -f flask-crawl4ai-scraper-minimal
 ```
 
 ### Step 5: Test the Deployment

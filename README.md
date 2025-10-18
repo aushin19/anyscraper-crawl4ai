@@ -23,8 +23,14 @@ A Flask-based web scraping API powered by crawl4ai that supports server-side ren
 
 **Quick Start:**
 ```bash
-# Using Docker Compose
+# Using Docker Compose (Default - Works on any server)
 docker-compose up -d --build
+
+# For low-resource servers (1 CPU, 1-2GB RAM)
+docker-compose -f docker-compose.minimal.yml up -d --build
+
+# For production servers (2+ CPUs, 4+ GB RAM)
+docker-compose -f docker-compose.production.yml up -d --build
 
 # The API will be available at http://localhost:5000
 ```
@@ -484,6 +490,18 @@ If errors persist, the site may have anti-scraping measures or very slow loading
 
 **Solution:** The AsyncWebCrawler creates browser instances. Ensure you're not making too many concurrent requests. Consider implementing rate limiting for production use.
 
+### Issue: "range of CPUs is from 0.01 to 1.00" on low-resource servers
+
+**Solution:** Your server has limited CPUs. Use the minimal Docker Compose configuration:
+
+```bash
+docker-compose -f docker-compose.minimal.yml up -d --build
+```
+
+Or edit `docker-compose.yml` and comment out the `deploy:` section (already done in the default file).
+
+📖 **See [LOW_RESOURCE_SERVER_FIX.md](LOW_RESOURCE_SERVER_FIX.md) for complete guide.**
+
 ### Issue: "Cannot use both include_tags and exclude_tags simultaneously"
 
 **Solution:** You can only use one filtering method per request:
@@ -584,7 +602,9 @@ flask-crawl4ai-scraper/
 │
 ├── Dockerfile               # Docker image (development)
 ├── Dockerfile.production    # Docker image (production with Gunicorn)
-├── docker-compose.yml       # Docker Compose configuration
+├── docker-compose.yml       # Docker Compose (default, works on any server)
+├── docker-compose.minimal.yml   # For low-resource servers (1 CPU)
+├── docker-compose.production.yml # For production servers (2+ CPUs)
 ├── .dockerignore            # Docker build exclusions
 ├── .gitignore               # Git exclusions
 │

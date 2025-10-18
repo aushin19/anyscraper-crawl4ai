@@ -19,14 +19,16 @@ services:
       retries: 3
       start_period: 40s
     # Resource limits (adjust based on your needs)
-    deploy:
-      resources:
-        limits:
-          cpus: '2'
-          memory: 2G
-        reservations:
-          cpus: '1'
-          memory: 1G
+    # Commented out for compatibility with low-resource servers
+    # Uncomment and adjust if you have more resources available
+    # deploy:
+    #   resources:
+    #     limits:
+    #       cpus: '2'
+    #       memory: 2G
+    #     reservations:
+    #       cpus: '0.5'
+    #       memory: 512M
     # Volumes for logs (optional)
     # volumes:
     #   - ./logs:/app/logs
