@@ -15,7 +15,7 @@ A Flask-based web scraping API powered by crawl4ai that supports server-side ren
 - ✅ Automatic page scrolling for lazy-loaded content
 - ✅ Server-side rendering support (JavaScript-heavy sites)
 - ✅ Comprehensive error handling and validation
-- ✅ Uses crawl4ai's `target_elements` for precise content focusing
+- ✅ Reliable tag-based extraction using `css_selector`
 
 ## Installation
 
@@ -125,8 +125,8 @@ curl http://localhost:5000/
 | Parameter | Type | Required | Default | Description |
 |-----------|------|----------|---------|-------------|
 | `url` | string | Yes | - | The URL to scrape (must be valid HTTP/HTTPS) |
-| `markdown_format` | string | No | `"raw"` | Output format: `"raw"` or `"fit"` |
-| `include_tags` | array | No | `[]` | Focus extraction on these HTML tags. Uses `target_elements`. Cannot be used with `exclude_tags`. |
+| `markdown_format` | string | No | `"raw"` | Output format: `"raw"` or `"fit"`. Note: `"fit"` may auto-fallback to `"raw"` when using `include_tags`. |
+| `include_tags` | array | No | `[]` | Extract ONLY these HTML tags and their children. Uses `css_selector`. Cannot be used with `exclude_tags`. |
 | `exclude_tags` | array | No | `[]` | Exclude these HTML tags and their children. Cannot be used with `include_tags`. |
 | `include_images` | boolean | No | `false` | Include images in markdown |
 | `include_urls` | boolean | No | `false` | Include URLs in markdown |
@@ -138,8 +138,9 @@ curl http://localhost:5000/
 
 **Important Notes:**
 - `include_tags` and `exclude_tags` cannot be used together in the same request
-- `include_tags`: Focuses markdown on listed elements while preserving full page context for links/media analysis
+- `include_tags`: Extracts ONLY listed elements and their children, removes everything else
 - `exclude_tags`: Removes listed tags and their children, everything else is kept
+- `markdown_format`: When using `include_tags`, if `"fit"` returns empty content, it automatically falls back to `"raw"`
 - `exclude_social_media_links`: Automatically filters facebook.com, twitter.com, x.com, linkedin.com, instagram.com, pinterest.com, tiktok.com, snapchat.com, reddit.com
 
 **Response (Success):**
@@ -492,22 +493,23 @@ If errors persist, the site may have anti-scraping measures or very slow loading
 
 ## Tag Filtering Behavior
 
-### Include Tags (Whitelist) - Uses `target_elements`
+### Include Tags (Whitelist) - Uses `css_selector`
 When you specify `include_tags`, the scraper will:
-- ✅ Focus markdown generation on specified tags and their children
-- ✅ Preserve full page context for links, images, and media extraction
-- 🎯 Use this when you know exactly what content you want (e.g., only articles, main content)
-- 📊 Links and images from entire page still available for analysis
+- ✅ Extract ONLY the specified tags and their children
+- ✅ Remove all other content from the page
+- 🎯 Use this when you know exactly what content you want (e.g., only tables, articles)
+- ⚡ Disables PruningContentFilter for more reliable extraction
 
-**Example:** `include_tags: ["article", "main"]` will generate markdown focusing on `<article>` and `<main>` elements, but still extract all links/images from the full page.
+**Example:** `include_tags: ["table"]` will extract ONLY `<table>` elements from the page.
 
-**Why `target_elements` is Better:**
-- Markdown content focuses on what you care about
-- Full page context preserved for link analysis
-- Better for focused content extraction with comprehensive metadata
-- More flexible than `css_selector` which removes everything else completely
+**Why This Works Better:**
+- More reliable extraction for specific elements (like tables)
+- Disables aggressive content filtering
+- Ensures all content from target tags is captured
+- Works consistently in Docker and local environments
+- Automatically uses `raw` markdown when `fit` is empty (with include_tags)
 
-**Technical Note:** Uses crawl4ai's `target_elements` parameter instead of `css_selector` for superior flexibility.
+**Technical Note:** Uses crawl4ai's `css_selector` parameter which is more reliable than `target_elements` for tag-specific extraction.
 
 ### Exclude Tags (Blacklist)
 When you specify `exclude_tags`, the scraper will:
@@ -563,7 +565,7 @@ When you specify `exclude_tags`, the scraper will:
 - **Scraper:** crawl4ai 0.7.4+
 - **Browser:** Headless Chromium (via Playwright)
 - **Async Handling:** asyncio for crawler operations
-- **Tag Filtering:** target_elements for focused extraction, excluded_tags for removal
+- **Tag Filtering:** css_selector for include_tags, excluded_tags for exclusion
 - **Content Filtering:** PruningContentFilter for intelligent content extraction
 - **Wait Strategy:** 2-second delay before HTML extraction for full page load
 - **Retry Logic:** Automatic retry on transient errors (up to 2 attempts)
@@ -587,7 +589,8 @@ flask-crawl4ai-scraper/
 ├── .gitignore               # Git exclusions
 │
 ├── README.md                # Main documentation (this file)
-├── REBUILD_INSTRUCTIONS.md  # Docker rebuild guide (if you encounter issues)
+├── CHANGELOG.md             # Version history and fixes
+├── INCLUDE_TAGS_FIX.md      # Fix for empty markdown with include_tags
 └── docs/
     ├── QUICKSTART.md        # Quick start guide (5 minutes)
     ├── DOCKER.md            # Comprehensive Docker guide

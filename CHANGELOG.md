@@ -1,8 +1,90 @@
 # Changelog
 
+## [Fixed] fit_markdown Empty with include_tags
+
+**Date:** 2025-10-18 (Update 3)
+
+### Issue
+When using `include_tags` with `markdown_format: "fit"`, the API was returning empty markdown. However, `markdown_format: "raw"` worked perfectly.
+
+### Root Cause
+The `fit_markdown` generation in crawl4ai doesn't work well with content extracted using `css_selector`. It requires more context to generate "fit" markdown properly.
+
+### Solution
+Added automatic fallback from `fit_markdown` to `raw_markdown` when `fit_markdown` is empty.
+
+```python
+# If fit_markdown is empty, use raw_markdown
+if not markdown_content or markdown_content.strip() == "":
+    markdown_content = scrape_result.markdown.raw_markdown
+```
+
+### Files Modified
+- `app.py` - Added fallback logic for fit_markdown
+- `README.md` - Updated documentation about markdown_format behavior
+
+### Testing
+```bash
+curl -X POST http://localhost:5000/scrape \
+  -H "Content-Type: application/json" \
+  -d '{
+    "url": "https://www.investorgain.com/report/live-ipo-gmp/331/all/",
+    "include_tags": ["table"],
+    "markdown_format": "fit"
+  }'
+```
+
+Now returns table content (using raw_markdown as fallback) instead of empty markdown.
+
+---
+
+## [Fixed] include_tags Returning Empty Markdown
+
+**Date:** 2025-10-18 (Update 2)
+
+### Issue
+When using `include_tags` parameter (e.g., `["table"]`), the API was returning empty markdown in Docker containers while working fine locally.
+
+### Root Cause
+1. Using `target_elements` parameter which was unreliable in crawl4ai 0.7.4
+2. PruningContentFilter being too aggressive with target_elements
+3. Insufficient wait time for dynamic content in Docker
+
+### Solution
+1. **Switched from `target_elements` to `css_selector`**
+   - More reliable for simple tag extraction
+   - Better Docker compatibility
+   
+2. **Disabled PruningContentFilter for include_tags**
+   - Prevents filtering out wanted content
+   - Ensures all content from specified tags is captured
+
+3. **Increased wait times**
+   - `delay_before_return_html`: 2.0s → 3.0s
+   - Added extra 1-second wait in JavaScript
+
+### Files Modified
+- `app.py` - Changed tag filtering implementation
+- `README.md` - Updated documentation to reflect css_selector usage
+- `INCLUDE_TAGS_FIX.md` (new) - Detailed fix explanation
+
+### Testing
+```bash
+curl -X POST http://localhost:5000/scrape \
+  -H "Content-Type: application/json" \
+  -d '{
+    "url": "https://www.investorgain.com/report/live-ipo-gmp/331/all/",
+    "include_tags": ["table"]
+  }'
+```
+
+Should now return table content instead of empty markdown.
+
+---
+
 ## [Fixed] Playwright Browser Installation Issue
 
-**Date:** 2025-10-18
+**Date:** 2025-10-18 (Update 1)
 
 ### Issue
 Docker containers were failing with the error:

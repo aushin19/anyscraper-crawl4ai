@@ -153,22 +153,19 @@ def scrape():
                 config_params = {
                     "cache_mode": CacheMode.BYPASS,  # Always fetch fresh content
                     "remove_overlay_elements": True,  # Remove popups, modals, etc.
-                    "markdown_generator": DefaultMarkdownGenerator(
-                        content_filter=PruningContentFilter(
-                            threshold=0.48, 
-                            threshold_type="fixed", 
-                            min_word_threshold=0
-                        ),
-                        options=markdown_options
-                    ),
-                    # JavaScript to scroll the page
+                    # JavaScript to scroll the page and wait for content
                     "js_code": [
+                        # Scroll to bottom to load lazy content
                         "window.scrollTo(0, document.body.scrollHeight);",
+                        # Wait for content to load
                         "await new Promise(resolve => setTimeout(resolve, 2000));",
-                        "window.scrollTo(0, 0);"
+                        # Scroll back to top
+                        "window.scrollTo(0, 0);",
+                        # Additional wait for any dynamic content
+                        "await new Promise(resolve => setTimeout(resolve, 1000));"
                     ],
                     "page_timeout": 60000,
-                    "delay_before_return_html": 2.0,  # Wait 2 seconds before extracting content
+                    "delay_before_return_html": 3.0,  # Wait 3 seconds before extracting content
                     
                     # Advanced content filtering
                     "word_count_threshold": word_count_threshold,
@@ -178,12 +175,26 @@ def scrape():
                     "process_iframes": process_iframes
                 }
                 
-                # Handle include_tags: Use target_elements for better flexibility
-                # target_elements focuses markdown on specific elements while preserving
-                # full page context for links, images, and other media
+                # Handle include_tags: Use css_selector for more reliable extraction
+                # css_selector is more reliable than target_elements for simple tag filtering
                 if include_tags:
-                    # Pass tags as-is since target_elements accepts a list of CSS selectors
-                    config_params["target_elements"] = include_tags
+                    # Convert list of tags to CSS selector (e.g., ["table", "div"] -> "table, div")
+                    css_selector = ", ".join(include_tags)
+                    config_params["css_selector"] = css_selector
+                    # Disable PruningContentFilter when using css_selector to avoid filtering out content
+                    config_params["markdown_generator"] = DefaultMarkdownGenerator(
+                        options=markdown_options
+                    )
+                else:
+                    # Use PruningContentFilter only when not filtering by tags
+                    config_params["markdown_generator"] = DefaultMarkdownGenerator(
+                        content_filter=PruningContentFilter(
+                            threshold=0.48, 
+                            threshold_type="fixed", 
+                            min_word_threshold=0
+                        ),
+                        options=markdown_options
+                    )
                 
                 # Handle exclude_tags: Exclude specified tags and their children
                 if exclude_tags:
@@ -238,14 +249,40 @@ def scrape():
         
         # Get the appropriate markdown based on format
         # New API uses result.markdown.raw_markdown and result.markdown.fit_markdown
+        markdown_content = ""
         if hasattr(scrape_result, 'markdown'):
             if markdown_format == 'fit':
-                markdown_content = scrape_result.markdown.fit_markdown if hasattr(scrape_result.markdown, 'fit_markdown') else scrape_result.markdown.raw_markdown
+                if hasattr(scrape_result.markdown, 'fit_markdown'):
+                    markdown_content = scrape_result.markdown.fit_markdown
+                    # Fallback to raw_markdown if fit_markdown is empty (happens with include_tags)
+                    if not markdown_content or markdown_content.strip() == "":
+                        if hasattr(scrape_result.markdown, 'raw_markdown'):
+                            markdown_content = scrape_result.markdown.raw_markdown
+                            print(f"Info: fit_markdown was empty, using raw_markdown instead")
+                elif hasattr(scrape_result.markdown, 'raw_markdown'):
+                    markdown_content = scrape_result.markdown.raw_markdown
+                else:
+                    markdown_content = str(scrape_result.markdown)
             else:
-                markdown_content = scrape_result.markdown.raw_markdown if hasattr(scrape_result.markdown, 'raw_markdown') else str(scrape_result.markdown)
-        else:
-            # Fallback for older API
-            markdown_content = str(scrape_result.markdown) if hasattr(scrape_result, 'markdown') else ''
+                if hasattr(scrape_result.markdown, 'raw_markdown'):
+                    markdown_content = scrape_result.markdown.raw_markdown
+                elif hasattr(scrape_result.markdown, 'fit_markdown'):
+                    markdown_content = scrape_result.markdown.fit_markdown
+                else:
+                    markdown_content = str(scrape_result.markdown)
+        
+        # If markdown is empty but we have HTML, log it for debugging
+        if not markdown_content or markdown_content.strip() == "":
+            # Try to extract from HTML directly if available
+            if hasattr(scrape_result, 'html') and scrape_result.html:
+                # Return cleaned HTML as fallback (this shouldn't normally happen)
+                print(f"Warning: Empty markdown for {url}, checking HTML content...")
+                if hasattr(scrape_result, 'cleaned_html') and scrape_result.cleaned_html:
+                    print(f"Cleaned HTML length: {len(scrape_result.cleaned_html)}")
+            
+            # Check if target_elements are working
+            if include_tags:
+                print(f"Warning: include_tags specified but got empty markdown: {include_tags}")
         
         # Prepare metadata
         metadata = {}
