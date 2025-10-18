@@ -41,7 +41,7 @@ docker run -d -p 5000:5000 --name scraper-api flask-crawl4ai-scraper
 docker logs -f scraper-api
 ```
 
-📖 **See [DOCKER.md](DOCKER.md) for comprehensive Docker documentation including:**
+📖 **See [DOCKER.md](/docs/DOCKER.md) for comprehensive Docker documentation including:**
 - Production deployment guide
 - Resource tuning
 - Health monitoring
@@ -365,7 +365,7 @@ docker run -d \
 
 #### Option 1: Docker (Recommended)
 
-See [DOCKER.md](DOCKER.md) for complete production deployment guide.
+See [DOCKER.md](/docs/DOCKER.md) for complete production deployment guide.
 
 ```bash
 # Quick production deployment
@@ -702,10 +702,10 @@ Feel free to submit issues and enhancement requests!
 | Document | Description | Lines |
 |----------|-------------|-------|
 | **[README.md](README.md)** | Main documentation - API usage, features, and examples | 700+ |
-| **[QUICKSTART.md](QUICKSTART.md)** | Get started in 5 minutes - Quick commands and examples | 300+ |
-| **[DOCKER.md](DOCKER.md)** | Comprehensive Docker guide - Deployment, monitoring, troubleshooting | 400+ |
-| **[UBUNTU_DEPLOYMENT.md](UBUNTU_DEPLOYMENT.md)** | Complete Ubuntu server deployment guide with Nginx, SSL, monitoring | 600+ |
-| **[SUMMARY.md](SUMMARY.md)** | Project overview, architecture, and quick reference | 400+ |
+| **[QUICKSTART.md](/docs/QUICKSTART.md)** | Get started in 5 minutes - Quick commands and examples | 300+ |
+| **[DOCKER.md](/docs/DOCKER.md)** | Comprehensive Docker guide - Deployment, monitoring, troubleshooting | 400+ |
+| **[UBUNTU_DEPLOYMENT.md](/docs/UBUNTU_DEPLOYMENT.md)** | Complete Ubuntu server deployment guide with Nginx, SSL, monitoring | 600+ |
+| **[SUMMARY.md](/docs/SUMMARY.md)** | Project overview, architecture, and quick reference | 400+ |
 | **[crawl4ai Docs](https://docs.crawl4ai.com/)** | Official crawl4ai documentation | External |
 | **[Flask Docs](https://flask.palletsprojects.com/)** | Flask web framework documentation | External |
 
