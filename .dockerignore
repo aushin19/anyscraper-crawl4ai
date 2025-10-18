@@ -1,0 +1,61 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+ENV/
+.venv
+pip-log.txt
+pip-delete-this-directory.txt
+.tox/
+.coverage
+.coverage.*
+.cache
+.pytest_cache/
+*.cover
+htmlcov/
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Git
+.git/
+.gitignore
+.gitattributes
+
+# Documentation (already copied via COPY)
+*.md
+!README.md
+
+# Test files
+test*.py
+*_test.py
+
+# Logs
+*.log
+logs/
+
+# Environment
+.env
+.env.*
+
+# Crawl4ai cache
+.crawl4ai/
+browser_data/
+
+# Docker
+Dockerfile
+docker-compose.yml
+.dockerignore
+
